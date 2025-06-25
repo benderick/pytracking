@@ -19,7 +19,7 @@ conda activate $conda_env_name
 
 echo ""
 echo ""
-echo "****************** Installing pytorch with cuda10 ******************"
+echo "****************** Installing pytorch with cuda11.3 ******************"
 conda install -y pytorch==1.12.1 torchvision==0.13.1 torchaudio==0.12.1 cudatoolkit=11.3 -c pytorch
 
 echo ""
@@ -82,11 +82,17 @@ echo ""
 echo "****************** Installing LVIS toolkit ******************"
 pip install lvis
 
+echo ""
+echo ""
+echo "****************** Installing timm ******************"
+pip install safetensors==0.3.3
+pip install timm
 
-echo ""
-echo ""
-echo "******** Installing spatial-correlation-sampler. Note: This is required only for KYS tracker **********"
-pip install spatial-correlation-sampler
+
+# echo ""
+# echo ""
+# echo "******** Installing spatial-correlation-sampler. Note: This is required only for KYS tracker **********"
+# pip install spatial-correlation-sampler
 
 echo ""
 echo ""
@@ -130,6 +136,7 @@ python -c "from ltr.admin.environment import create_default_local_file; create_d
 echo ""
 echo ""
 echo "****************** Installing jpeg4py ******************"
+# sudo apt-get install libturbojpeg
 # while true; do
 #     read -p "Install jpeg4py for reading images? This step required sudo privilege. Installing jpeg4py is optional, however recommended. [y,n]  " install_flag
 #     case $install_flag in
