@@ -80,6 +80,8 @@ def ltr_collate_stack1(batch):
             numel = sum([x.numel() for x in batch])
             storage = batch[0].storage()._new_shared(numel)
             out = batch[0].new(storage)
+            if out.numel() != 0:
+                out.resize_(0)  # 👈 关键补丁：清空张量触发安全自动 resize
         return torch.stack(batch, 1, out=out)
         # if batch[0].dim() < 4:
         #     return torch.stack(batch, 0, out=out)
