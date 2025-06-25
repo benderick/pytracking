@@ -17,7 +17,7 @@ import numpy as np
 def run(settings):
     settings.description = 'TaMOs-Swin-Base'
     settings.multi_gpu = True
-    settings.batch_size = 2 * torch.cuda.device_count()
+    settings.batch_size = 4 * torch.cuda.device_count()
     settings.num_workers = 2 * torch.cuda.device_count()
     fail_safe = True
     load_latest = True
