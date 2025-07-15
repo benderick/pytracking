@@ -14,7 +14,7 @@ import numpy as np
 
 
 def run(settings):
-    settings.description = 'TaMOs-Swin-Base'
+    settings.description = 'TaMOs-CSPResnet'
     settings.multi_gpu = True
     settings.batch_size = 4 * torch.cuda.device_count()
     settings.num_workers = 2 * torch.cuda.device_count()
@@ -46,7 +46,7 @@ def run(settings):
     settings.train_samples_per_epoch = 40000
     settings.val_samples_per_epoch = 10000
     settings.val_epoch_interval = 5
-    settings.num_epochs = 300
+    settings.num_epochs = 50
 
     settings.weight_giou = 1.0
     settings.weight_clf = 100.0
@@ -141,7 +141,7 @@ def run(settings):
                                shuffle=False, drop_last=True, epoch_interval=settings.val_epoch_interval, stack_dim=1)
 
     # Create network and actor
-    net = tamosnet.tamosnet_swin_base(filter_size=settings.target_filter_sz, backbone_pretrained=False,
+    net = tamosnet.tamosnet_cspresnet(filter_size=settings.target_filter_sz, backbone_pretrained=False,
                                       head_feat_blocks=0,
                                       head_feat_norm=True, final_conv=True, out_feature_dim=256,
                                       feature_sz=settings.feature_sz,

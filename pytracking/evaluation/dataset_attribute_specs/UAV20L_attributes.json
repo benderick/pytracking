@@ -1,0 +1,241 @@
+{
+  "att_name_long": [
+    "Scale Variation",
+    "Aspect Ratio Change",
+    "Low Resolution",
+    "Fast Motion",
+    "Full Occlusion",
+    "Partial Occlusion",
+    "Out-of-View",
+    "Background Clutter",
+    "Illumination Variation",
+    "Viewpoint Change",
+    "Camera Motion",
+    "Similar Object"
+  ],
+  "att_name_short": [
+    "SV",
+    "ARC",
+    "LR",
+    "FM",
+    "FOC",
+    "POC",
+    "OV",
+    "BC",
+    "IV",
+    "VC",
+    "CM",
+    "SOB"
+  ],
+
+  "car1": [
+    "SV",
+    "CM",
+    "SOB",
+    "ARC",
+    "FOC",
+    "POC",
+    "OV",
+    "VC",
+    "FM",
+    "IV",
+    "LR"
+  ],
+  "person14": [
+    "SV",
+    "ARC",
+    "LR",
+    "FOC",
+    "POC",
+    "BC",
+    "CM",
+    "OV",
+    "VC"
+  ],
+  
+  "person17": [
+    "SV",
+    "ARC",
+    "FOC",
+    "POC",
+    "IV",
+    "BC",
+    "CM"
+  ],
+  
+  "person19": [
+    "SV",
+    "ARC",
+    "FM",
+    "FOC",
+    "POC",
+    "OV",
+    "CM",
+    "LR",
+    "VC",
+    "SOB"
+  ],
+  
+  "person20": [
+    "SV",
+    "ARC",
+    "POC",
+    "OV",
+    "VC",
+    "CM",
+    "SOB"
+  ],
+  
+  "group2": [
+    "SV",
+    "ARC",
+    "FOC",
+    "POC",
+    "BC",
+    "VC",
+    "CM",
+    "SOB",
+    "LR",
+    "IV"
+  ],
+  
+  "person7": [
+    "SV",
+    "ARC",
+    "FM",
+    "FOC",
+    "POC",
+    "OV",
+    "VC",
+    "CM"
+  ],
+  
+  "car6": [
+    "SV",
+    "IV",
+    "VC",
+    "CM",
+    "SOB",
+    "ARC",
+    "POC",
+    "OV"
+  ],
+  
+  "person4": [
+    "SV",
+    "POC",
+    "OV",
+    "CM",
+    "SOB"
+  ],
+  
+  "bird1": [
+    "SV",
+    "ARC",
+    "LR",
+    "FM",
+    "FOC",
+    "POC",
+    "OV",
+    "CM"
+  ],
+  
+  "bike1": [
+    "SV",
+    "ARC",
+    "FM",
+    "IV",
+    "VC",
+    "CM",
+    "SOB"
+  ],
+  
+  "group1": [
+    "SV",
+    "POC",
+    "SOB",
+    "ARC",
+    "LR",
+    "VC",
+    "CM",
+    "IV"
+  ],
+  
+  "person2": [
+    "POC",
+    "OV",
+    "CM"
+  ],
+  "car8": [
+    "SV",
+    "ARC",
+    "POC",
+    "OV",
+    "VC",
+    "CM",
+    "SOB",
+    "IV"
+  ],
+  
+  "car16": [
+    "SV",
+    "LR",
+    "FM",
+    "POC",
+    "OV",
+    "VC",
+    "CM",
+    "ARC"
+  ],
+  "person5": [
+    "SV",
+    "VC"
+  ],
+ 
+  "group3": [
+    "SV",
+    "ARC",
+    "LR",
+    "POC",
+    "SOB",
+    "POC",
+    "BC",
+    "CM",
+    "FOC",
+    "IV"
+  ],
+  
+  "uav1": [
+    "SV",
+    "ARC",
+    "LR",
+    "FOC",
+    "POC",
+    "OV",
+    "BC",
+    "IV",
+    "VC",
+    "CM",
+    "LR",
+    "FM"
+  ],
+  "car3": [
+    "SV",
+    "LR",
+    "POC",
+    "OV",
+    "CM",
+    "SOB"
+  ],
+  
+  "car9": [
+    "SV",
+    "ARC",
+    "LR",
+    "FM",
+    "POC",
+    "CM",
+    "SOB"
+  ]
+  
+}

@@ -45,7 +45,7 @@ def parameters():
     params.conf_ths = 0.85
     params.search_area_rescaling_at_occlusion = False
 
-    params.net = NetWithBackbone(net_path='tamos_swin_base.pth.tar', use_gpu=params.use_gpu)
+    params.net = NetWithBackbone(net_path='/home/zhangshuo2024/futurama/pytracking/workspace/checkpoints/ltr/tamos/tamos_swin_mbfd/TaMOsNet_ep0031.pth.tar', use_gpu=params.use_gpu)
 
     params.vot_anno_conversion_type = 'preserve_area'
 
