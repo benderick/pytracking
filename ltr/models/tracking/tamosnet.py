@@ -256,7 +256,7 @@ def tamosnet_cspresnet(filter_size=4, head_layer='2', backbone_pretrained=True, 
     else:
         raise Exception
 
-    head_feature_extractor = clf_features.residual_bottleneck(input_dim=512, feature_dim=feature_dim,
+    head_feature_extractor = clf_features.residual_bottleneck(input_dim=feature_dim, feature_dim=feature_dim,
                                                               num_blocks=head_feat_blocks, l2norm=head_feat_norm,
                                                               final_conv=final_conv, norm_scale=norm_scale,
                                                               out_dim=out_feature_dim)
@@ -272,7 +272,58 @@ def tamosnet_cspresnet(filter_size=4, head_layer='2', backbone_pretrained=True, 
 
     bb_regressor = heads.DenseBoxRegressor(num_channels=out_feature_dim)
 
-    fpn = heads.FPN(high_res_layer='1', output_dim=256, input_dims=(256, 256))
+    fpn = heads.FPN(high_res_layer='1', output_dim=256, input_dims=(128, 256))
+
+    head = heads.FPNHead(filter_predictor=filter_predictor, feature_extractor=head_feature_extractor,
+                         classifier=classifier, bb_regressor=bb_regressor, fpn=fpn, head_layer=head_layer[-1],
+                         cls_output_mode=fpn_head_cls_output_mode, bbreg_output_mode=fpn_head_bbreg_output_mode)
+
+
+    # TaMOs network
+    net = TaMOsNet(feature_extractor=backbone_net, head=head, head_layer=head_layer)
+    return net
+
+@model_constructor
+def tamosnet_cspresnet_mbfd(filter_size=4, head_layer='2', backbone_pretrained=True, head_feat_blocks=0, head_feat_norm=True,
+                    final_conv=True, out_feature_dim=512, frozen_backbone_layers=(), nhead=8, num_encoder_layers=6,
+                    num_decoder_layers=6, dim_feedforward=2048, feature_sz=18, num_tokens=10, label_enc='gaussian', box_enc='ltrb',
+                    fpn_head_cls_output_mode=['high'], fpn_head_bbreg_output_mode=['high'], **kwargs):
+    # Backbone
+    backbone_net = backbones.cspresnet_mbfd(pretrained=backbone_pretrained, frozen_layers=frozen_backbone_layers)
+
+    # Feature normalization
+    norm_scale = math.sqrt(1.0 / (out_feature_dim * filter_size * filter_size))
+
+    # Classifier features
+    if head_layer == '2':
+        feature_dim = 256
+    elif head_layer == '3':
+        feature_dim = 512
+    elif isinstance(head_layer, list):
+        if head_layer[-1] == '2':
+            feature_dim = 256
+        elif head_layer[-1] == '3':
+            feature_dim = 512
+    else:
+        raise Exception
+
+    head_feature_extractor = clf_features.residual_bottleneck(input_dim=feature_dim, feature_dim=feature_dim,
+                                                              num_blocks=head_feat_blocks, l2norm=head_feat_norm,
+                                                              final_conv=final_conv, norm_scale=norm_scale,
+                                                              out_dim=out_feature_dim)
+
+    transformer = trans.Transformer(d_model=out_feature_dim, nhead=nhead, num_encoder_layers=num_encoder_layers,
+                                    num_decoder_layers=num_decoder_layers, dim_feedforward=dim_feedforward)
+
+
+    filter_predictor = fp.GOTFilterPredictor(transformer, feature_sz=feature_sz, num_tokens=num_tokens,
+                                             label_enc=label_enc, box_enc=box_enc)
+
+    classifier = heads.LinearFilterClassifier(num_channels=out_feature_dim)
+
+    bb_regressor = heads.DenseBoxRegressor(num_channels=out_feature_dim)
+
+    fpn = heads.FPN(high_res_layer='1', output_dim=256, input_dims=(128, 256))
 
     head = heads.FPNHead(filter_predictor=filter_predictor, feature_extractor=head_feature_extractor,
                          classifier=classifier, bb_regressor=bb_regressor, fpn=fpn, head_layer=head_layer[-1],

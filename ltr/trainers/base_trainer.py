@@ -73,7 +73,9 @@ class BaseTrainer:
                         self.lr_scheduler.step()
 
                     if self._checkpoint_dir:
-                        self.save_checkpoint()
+                        if epoch % self.settings.save_checkpoint_freq == 0:
+                            self.save_checkpoint()
+                            print("第{}个epoch的检查点已保存".format(epoch))
             except:
                 print('Training crashed at epoch {}'.format(epoch))
                 if fail_safe:

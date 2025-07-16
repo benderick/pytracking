@@ -9,10 +9,12 @@ import torch.nn as nn
 import torch.nn.functional as F
 from collections import OrderedDict
 
+from .MBFD import FMBFD, MBFD
+
 from .common import get_activation
 
 
-# __all__ = ['CSPResNet']
+# __all__ = ['CSPResNet_MBFD']
 
 
 donwload_url = {
@@ -155,8 +157,9 @@ class CSPResStage(nn.Module):
         super().__init__()
         ch_mid = (ch_in + ch_out) // 2
         if stride == 2:
-            self.conv_down = ConvBNLayer(
-                ch_in, ch_mid, 3, stride=2, padding=1, act=act)
+            # self.conv_down = ConvBNLayer(
+            #     ch_in, ch_mid, 3, stride=2, padding=1, act=act)
+            self.conv_down = MBFD(ch_in, ch_mid)
         else:
             self.conv_down = None
         self.conv1 = ConvBNLayer(ch_mid, ch_mid // 2, 1, act=act)
@@ -188,7 +191,7 @@ class CSPResStage(nn.Module):
         return y
 
 
-class CSPResNet(nn.Module):
+class CSPResNet_MBFD(nn.Module):
     layers = [3, 6, 6, 3]
     channels = [64, 128, 256, 512, 1024]
     model_cfg = {
@@ -215,34 +218,36 @@ class CSPResNet(nn.Module):
         layers = [max(round(l * depth_mult), 1) for l in self.layers]
         act = get_activation(act)
 
-        if use_large_stem:
-            self.stem = nn.Sequential(OrderedDict([
-                ('conv1', ConvBNLayer(
-                    3, channels[0] // 2, 3, stride=2, padding=1, act=act)),
-                ('conv2', ConvBNLayer(
-                    channels[0] // 2,
-                    channels[0] // 2,
-                    3,
-                    stride=1,
-                    padding=1,
-                    act=act)), ('conv3', ConvBNLayer(
-                        channels[0] // 2,
-                        channels[0],
-                        3,
-                        stride=1,
-                        padding=1,
-                        act=act))]))
-        else:
-            self.stem = nn.Sequential(OrderedDict([
-                ('conv1', ConvBNLayer(
-                    3, channels[0] // 2, 3, stride=2, padding=1, act=act)),
-                ('conv2', ConvBNLayer(
-                    channels[0] // 2,
-                    channels[0],
-                    3,
-                    stride=1,
-                    padding=1,
-                    act=act))]))
+        self.stem = FMBFD(3, channels[0])
+
+        # if use_large_stem:
+        #     self.stem = nn.Sequential(OrderedDict([
+        #         ('conv1', ConvBNLayer(
+        #             3, channels[0] // 2, 3, stride=2, padding=1, act=act)),
+        #         ('conv2', ConvBNLayer(
+        #             channels[0] // 2,
+        #             channels[0] // 2,
+        #             3,
+        #             stride=1,
+        #             padding=1,
+        #             act=act)), ('conv3', ConvBNLayer(
+        #                 channels[0] // 2,
+        #                 channels[0],
+        #                 3,
+        #                 stride=1,
+        #                 padding=1,
+        #                 act=act))]))
+        # else:
+        #     self.stem = nn.Sequential(OrderedDict([
+        #         ('conv1', ConvBNLayer(
+        #             3, channels[0] // 2, 3, stride=2, padding=1, act=act)),
+        #         ('conv2', ConvBNLayer(
+        #             channels[0] // 2,
+        #             channels[0],
+        #             3,
+        #             stride=1,
+        #             padding=1,
+        #             act=act))]))
 
         n = len(channels) - 1
         self.stages = nn.Sequential(OrderedDict([(str(i), CSPResStage(
@@ -293,9 +298,8 @@ class CSPResNet(nn.Module):
             return list(outputs.values())[0]
         
         return outputs
-
-
-def cspresnet(output_layers=None, pretrained=False, **kwargs):
+    
+def cspresnet_mbfd(output_layers=None, pretrained=False, **kwargs):
     if output_layers is None:
         output_layers = (0, 1, 2, 3)
     else:
@@ -304,7 +308,7 @@ def cspresnet(output_layers=None, pretrained=False, **kwargs):
                 raise ValueError('Unknown layer: {}'.format(l))
         output_layers = [int(l) for l in output_layers]
 
-    model = CSPResNet("s", return_idx=output_layers, **kwargs)
+    model = CSPResNet_MBFD("s", return_idx=output_layers, **kwargs)
 
     return model
 
@@ -314,7 +318,7 @@ if __name__ == '__main__':
     data = torch.rand(1, 3, 640, 640)
 
 
-    m = CSPResNet("s", return_idx=[1, 2, 3])
+    m = CSPResNet_MBFD("s", return_idx=[1, 2, 3])
     outputs = m(data)
     print([o.shape for o in outputs])
 
