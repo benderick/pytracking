@@ -14,15 +14,15 @@ import numpy as np
 
 
 def run(settings):
-    settings.description = 'TaMOs-Swin-Base'
+    settings.description = 'TaMOs-ConvNeXt-MBFD'
     settings.multi_gpu = True
-    settings.batch_size = 4 * torch.cuda.device_count()
+    settings.batch_size = 6 * torch.cuda.device_count()
     settings.num_workers = 2 * torch.cuda.device_count()
     fail_safe = True
     load_latest = True
 
     settings.print_interval = 1000
-    settings.save_checkpoint_freq = 10
+    settings.save_checkpoint_freq = 5
     settings.normalize_mean = [0.485, 0.456, 0.406]
     settings.normalize_std = [0.229, 0.224, 0.225]
     settings.search_area_factor = 5.0
@@ -141,7 +141,7 @@ def run(settings):
                                shuffle=False, drop_last=True, epoch_interval=settings.val_epoch_interval, stack_dim=1)
 
     # Create network and actor
-    net = tamosnet.tamosnet_swin_base(filter_size=settings.target_filter_sz, backbone_pretrained=False,
+    net = tamosnet.tamosnet_convnext_mbfd(filter_size=settings.target_filter_sz, backbone_pretrained=False,
                                       head_feat_blocks=0,
                                       head_feat_norm=True, final_conv=True, out_feature_dim=256,
                                       feature_sz=settings.feature_sz,
@@ -165,8 +165,7 @@ def run(settings):
 
     # Optimizer
     optimizer = optim.AdamW([
-        {'params': actor.net.head.parameters(), 'lr': 1e-4},
-        {'params': actor.net.feature_extractor.layers[2].parameters(), 'lr': 2e-5}
+        {'params': actor.net.head.parameters(), 'lr': 1e-4}
     ], lr=2e-4, weight_decay=0.0001)
 
     lr_scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[150, 250], gamma=0.2)

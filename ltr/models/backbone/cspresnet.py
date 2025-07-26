@@ -289,8 +289,8 @@ class CSPResNet(nn.Module):
                 outputs[str(idx)] = x
         
         # 如果只有一个输出层，直接返回该层的输出
-        if len(outputs) == 1:
-            return list(outputs.values())[0]
+        # if len(outputs) == 1:
+        #     return list(outputs.values())[0]
         
         return outputs
 
@@ -314,7 +314,8 @@ if __name__ == '__main__':
     data = torch.rand(1, 3, 640, 640)
 
 
-    m = CSPResNet("s", return_idx=[1, 2, 3])
-    outputs = m(data)
-    print([o.shape for o in outputs])
+    m = CSPResNet("s", return_idx=[0, 1, 2, 3])
+    outputs = m(data, ["2"])
+    for k, v in outputs.items():
+        print(f"{k}: {v.shape}")
 

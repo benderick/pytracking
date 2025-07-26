@@ -14,7 +14,7 @@ import numpy as np
 
 
 def run(settings):
-    settings.description = 'TaMOs-Swin-MBFD'
+    settings.description = 'TaMOs-Swin'
     settings.multi_gpu = True
     settings.batch_size = 5 * torch.cuda.device_count()
     settings.num_workers = 2 * torch.cuda.device_count()
@@ -141,7 +141,7 @@ def run(settings):
                                shuffle=False, drop_last=True, epoch_interval=settings.val_epoch_interval, stack_dim=1)
 
     # Create network and actor
-    net = tamosnet.tamosnet_swin_mbfd_tiny(filter_size=settings.target_filter_sz, backbone_pretrained=False,
+    net = tamosnet.tamosnet_swin_tiny(filter_size=settings.target_filter_sz, backbone_pretrained=False,
                                       head_feat_blocks=0,
                                       head_feat_norm=True, final_conv=True, out_feature_dim=256,
                                       feature_sz=settings.feature_sz,

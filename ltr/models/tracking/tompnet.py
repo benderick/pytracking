@@ -160,3 +160,258 @@ def tompnet101(filter_size=1, head_layer='layer3', backbone_pretrained=True, hea
     # ToMP network
     net = ToMPnet(feature_extractor=backbone_net, head=head, head_layer=head_layer)
     return net
+
+@model_constructor
+def tompnet_cspresnet_mbfd(filter_size=4, head_layer='2', backbone_pretrained=True, head_feat_blocks=0, head_feat_norm=True,
+              final_conv=True, out_feature_dim=512, frozen_backbone_layers=(), nhead=8, num_encoder_layers=6,
+              num_decoder_layers=6, dim_feedforward=2048, feature_sz=18, use_test_frame_encoding=True):
+    # Backbone
+    backbone_net = backbones.cspresnet_mbfd(pretrained=backbone_pretrained, frozen_layers=frozen_backbone_layers)
+
+    # Feature normalization
+    norm_scale = math.sqrt(1.0 / (out_feature_dim * filter_size * filter_size))
+
+    # Classifier features
+    if head_layer == '2':
+        feature_dim = 256
+    elif head_layer == '3':
+        feature_dim = 512
+    else:
+        raise Exception
+
+    head_feature_extractor = clf_features.residual_bottleneck(feature_dim=feature_dim,
+                                                              num_blocks=head_feat_blocks, l2norm=head_feat_norm,
+                                                              final_conv=final_conv, norm_scale=norm_scale,
+                                                              out_dim=out_feature_dim,
+                                                              input_dim=feature_dim)
+
+    transformer = trans.Transformer(d_model=out_feature_dim, nhead=nhead, num_encoder_layers=num_encoder_layers,
+                                    num_decoder_layers=num_decoder_layers, dim_feedforward=dim_feedforward)
+
+
+    filter_predictor = fp.FilterPredictor(transformer, feature_sz=feature_sz,
+                                          use_test_frame_encoding=use_test_frame_encoding)
+
+    classifier = heads.LinearFilterClassifier(num_channels=out_feature_dim)
+
+    bb_regressor = heads.DenseBoxRegressor(num_channels=out_feature_dim)
+
+    head = heads.Head(filter_predictor=filter_predictor, feature_extractor=head_feature_extractor,
+                      classifier=classifier, bb_regressor=bb_regressor)
+
+    # ToMP network
+    net = ToMPnet(feature_extractor=backbone_net, head=head, head_layer=head_layer)
+    return net
+
+@model_constructor
+def tompnet_convnext(filter_size=4, head_layer='2', backbone_pretrained=True, head_feat_blocks=0, head_feat_norm=True,
+              final_conv=True, out_feature_dim=512, frozen_backbone_layers=(), nhead=8, num_encoder_layers=6,
+              num_decoder_layers=6, dim_feedforward=2048, feature_sz=18, use_test_frame_encoding=True):
+    # Backbone
+    backbone_net = backbones.TimmBackboneWrapper('convnextv2_femto', pretrained=backbone_pretrained, output_layers=['0', '1', '2', '3'])
+
+    # Feature normalization
+    norm_scale = math.sqrt(1.0 / (out_feature_dim * filter_size * filter_size))
+
+    # Classifier features
+    if head_layer == '2':
+        feature_dim = 256
+    elif head_layer == '3':
+        feature_dim = 512
+    else:
+        raise Exception
+
+    head_feature_extractor = clf_features.residual_bottleneck(feature_dim=feature_dim,
+                                                              num_blocks=head_feat_blocks, l2norm=head_feat_norm,
+                                                              final_conv=final_conv, norm_scale=norm_scale,
+                                                              out_dim=out_feature_dim,
+                                                              input_dim=192)
+
+    transformer = trans.Transformer(d_model=out_feature_dim, nhead=nhead, num_encoder_layers=num_encoder_layers,
+                                    num_decoder_layers=num_decoder_layers, dim_feedforward=dim_feedforward)
+
+
+    filter_predictor = fp.FilterPredictor(transformer, feature_sz=feature_sz,
+                                          use_test_frame_encoding=use_test_frame_encoding)
+
+    classifier = heads.LinearFilterClassifier(num_channels=out_feature_dim)
+
+    bb_regressor = heads.DenseBoxRegressor(num_channels=out_feature_dim)
+
+    head = heads.Head(filter_predictor=filter_predictor, feature_extractor=head_feature_extractor,
+                      classifier=classifier, bb_regressor=bb_regressor)
+
+    # ToMP network
+    net = ToMPnet(feature_extractor=backbone_net, head=head, head_layer=head_layer)
+    return net
+
+@model_constructor
+def tompnet_convnext_mbfd(filter_size=4, head_layer='2', backbone_pretrained=True, head_feat_blocks=0, head_feat_norm=True,
+              final_conv=True, out_feature_dim=512, frozen_backbone_layers=(), nhead=8, num_encoder_layers=6,
+              num_decoder_layers=6, dim_feedforward=2048, feature_sz=18, use_test_frame_encoding=True):
+    # Backbone
+    backbone_net = backbones.TimmBackboneWrapper('convnextv2_mbfd_femto', pretrained=backbone_pretrained, output_layers=['0', '1', '2', '3'])
+
+    # Feature normalization
+    norm_scale = math.sqrt(1.0 / (out_feature_dim * filter_size * filter_size))
+
+    # Classifier features
+    if head_layer == '2':
+        feature_dim = 256
+    elif head_layer == '3':
+        feature_dim = 512
+    else:
+        raise Exception
+
+    head_feature_extractor = clf_features.residual_bottleneck(feature_dim=feature_dim,
+                                                              num_blocks=head_feat_blocks, l2norm=head_feat_norm,
+                                                              final_conv=final_conv, norm_scale=norm_scale,
+                                                              out_dim=out_feature_dim,
+                                                              input_dim=192)
+
+    transformer = trans.Transformer(d_model=out_feature_dim, nhead=nhead, num_encoder_layers=num_encoder_layers,
+                                    num_decoder_layers=num_decoder_layers, dim_feedforward=dim_feedforward)
+
+
+    filter_predictor = fp.FilterPredictor(transformer, feature_sz=feature_sz,
+                                          use_test_frame_encoding=use_test_frame_encoding)
+
+    classifier = heads.LinearFilterClassifier(num_channels=out_feature_dim)
+
+    bb_regressor = heads.DenseBoxRegressor(num_channels=out_feature_dim)
+
+    head = heads.Head(filter_predictor=filter_predictor, feature_extractor=head_feature_extractor,
+                      classifier=classifier, bb_regressor=bb_regressor)
+
+    # ToMP network
+    net = ToMPnet(feature_extractor=backbone_net, head=head, head_layer=head_layer)
+    return net
+
+
+@model_constructor
+def tompnet_cspresnet(filter_size=4, head_layer='2', backbone_pretrained=True, head_feat_blocks=0, head_feat_norm=True,
+              final_conv=True, out_feature_dim=512, frozen_backbone_layers=(), nhead=8, num_encoder_layers=6,
+              num_decoder_layers=6, dim_feedforward=2048, feature_sz=18, use_test_frame_encoding=True):
+    # Backbone
+    backbone_net = backbones.cspresnet(pretrained=backbone_pretrained, frozen_layers=frozen_backbone_layers)
+
+    # Feature normalization
+    norm_scale = math.sqrt(1.0 / (out_feature_dim * filter_size * filter_size))
+
+    # Classifier features
+    if head_layer == '2':
+        feature_dim = 256
+    elif head_layer == '3':
+        feature_dim = 512
+    else:
+        raise Exception
+
+    head_feature_extractor = clf_features.residual_bottleneck(feature_dim=feature_dim,
+                                                              num_blocks=head_feat_blocks, l2norm=head_feat_norm,
+                                                              final_conv=final_conv, norm_scale=norm_scale,
+                                                              out_dim=out_feature_dim,
+                                                              input_dim=feature_dim)
+
+    transformer = trans.Transformer(d_model=out_feature_dim, nhead=nhead, num_encoder_layers=num_encoder_layers,
+                                    num_decoder_layers=num_decoder_layers, dim_feedforward=dim_feedforward)
+
+
+    filter_predictor = fp.FilterPredictor(transformer, feature_sz=feature_sz,
+                                          use_test_frame_encoding=use_test_frame_encoding)
+
+    classifier = heads.LinearFilterClassifier(num_channels=out_feature_dim)
+
+    bb_regressor = heads.DenseBoxRegressor(num_channels=out_feature_dim)
+
+    head = heads.Head(filter_predictor=filter_predictor, feature_extractor=head_feature_extractor,
+                      classifier=classifier, bb_regressor=bb_regressor)
+
+    # ToMP network
+    net = ToMPnet(feature_extractor=backbone_net, head=head, head_layer=head_layer)
+    return net
+
+
+@model_constructor
+def tompnet_vovnet_mbfd(filter_size=4, head_layer='2', backbone_pretrained=True, head_feat_blocks=0, head_feat_norm=True,
+              final_conv=True, out_feature_dim=512, frozen_backbone_layers=(), nhead=8, num_encoder_layers=6,
+              num_decoder_layers=6, dim_feedforward=2048, feature_sz=18, use_test_frame_encoding=True):
+    # Backbone
+    backbone_net = backbones.TimmBackboneWrapper('ese_vovnet19b_mbfd', pretrained=backbone_pretrained, output_layers=['0', '1', '2', '3'])
+
+    # Feature normalization
+    norm_scale = math.sqrt(1.0 / (out_feature_dim * filter_size * filter_size))
+
+    # Classifier features
+    if head_layer == '2':
+        feature_dim = 256
+    elif head_layer == '3':
+        feature_dim = 512
+    else:
+        raise Exception
+
+    head_feature_extractor = clf_features.residual_bottleneck(feature_dim=feature_dim,
+                                                              num_blocks=head_feat_blocks, l2norm=head_feat_norm,
+                                                              final_conv=final_conv, norm_scale=norm_scale,
+                                                              out_dim=out_feature_dim,
+                                                              input_dim=256)
+
+    transformer = trans.Transformer(d_model=out_feature_dim, nhead=nhead, num_encoder_layers=num_encoder_layers,
+                                    num_decoder_layers=num_decoder_layers, dim_feedforward=dim_feedforward)
+
+
+    filter_predictor = fp.FilterPredictor(transformer, feature_sz=feature_sz,
+                                          use_test_frame_encoding=use_test_frame_encoding)
+
+    classifier = heads.LinearFilterClassifier(num_channels=out_feature_dim)
+
+    bb_regressor = heads.DenseBoxRegressor(num_channels=out_feature_dim)
+
+    head = heads.Head(filter_predictor=filter_predictor, feature_extractor=head_feature_extractor,
+                      classifier=classifier, bb_regressor=bb_regressor)
+
+    # ToMP network
+    net = ToMPnet(feature_extractor=backbone_net, head=head, head_layer=head_layer)
+    return net
+
+
+@model_constructor
+def tompnet_vovnet(filter_size=4, head_layer='2', backbone_pretrained=True, head_feat_blocks=0, head_feat_norm=True,
+              final_conv=True, out_feature_dim=512, frozen_backbone_layers=(), nhead=8, num_encoder_layers=6,
+              num_decoder_layers=6, dim_feedforward=2048, feature_sz=18, use_test_frame_encoding=True):
+    # Backbone
+    backbone_net = backbones.TimmBackboneWrapper('ese_vovnet19b_slim_dw', pretrained=backbone_pretrained, output_layers=['0', '1', '2', '3'])
+
+    # Feature normalization
+    norm_scale = math.sqrt(1.0 / (out_feature_dim * filter_size * filter_size))
+
+    # Classifier features
+    if head_layer == '2':
+        feature_dim = 256
+    elif head_layer == '3':
+        feature_dim = 512
+    else:
+        raise Exception
+
+    head_feature_extractor = clf_features.residual_bottleneck(feature_dim=feature_dim,
+                                                              num_blocks=head_feat_blocks, l2norm=head_feat_norm,
+                                                              final_conv=final_conv, norm_scale=norm_scale,
+                                                              out_dim=out_feature_dim,
+                                                              input_dim=256)
+
+    transformer = trans.Transformer(d_model=out_feature_dim, nhead=nhead, num_encoder_layers=num_encoder_layers,
+                                    num_decoder_layers=num_decoder_layers, dim_feedforward=dim_feedforward)
+
+
+    filter_predictor = fp.FilterPredictor(transformer, feature_sz=feature_sz,
+                                          use_test_frame_encoding=use_test_frame_encoding)
+
+    classifier = heads.LinearFilterClassifier(num_channels=out_feature_dim)
+
+    bb_regressor = heads.DenseBoxRegressor(num_channels=out_feature_dim)
+
+    head = heads.Head(filter_predictor=filter_predictor, feature_extractor=head_feature_extractor,
+                      classifier=classifier, bb_regressor=bb_regressor)
+
+    # ToMP network
+    net = ToMPnet(feature_extractor=backbone_net, head=head, head_layer=head_layer)
+    return net

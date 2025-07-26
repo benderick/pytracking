@@ -12,7 +12,7 @@ import torch.nn.functional as F
 from torch import nn
 import torch.utils.checkpoint as checkpoint
 import numpy as np
-from timm.models.layers import DropPath, to_2tuple, trunc_normal_
+from timm.layers import DropPath, to_2tuple, trunc_normal_
 import ltr.admin.settings as env_settings
 from .base import Backbone
 
@@ -838,6 +838,26 @@ def swin_base384_mbfd(output_layers=None, pretrained=False, **kwargs):
 
     return model
 
+def swin_mbfd_tiny(output_layers=None, pretrained=False, **kwargs):
+    if output_layers is None:
+        output_layers = (0, 1, 2, 3)
+    else:
+        for l in output_layers:
+            if int(l) not in [0, 1, 2, 3]:
+                raise ValueError('Unknown layer: {}'.format(l))
+        output_layers = [int(l) for l in output_layers]
+
+    model = SwinTransformer(embed_dim=96, depths=[2, 2, 6, 2], num_heads=[3, 6, 12, 24], window_size=7,
+                            mlp_ratio=4., qkv_bias=True, qk_scale=None, drop_rate=0., attn_drop_rate=0.,
+                            drop_path_rate=0.2, ape=False, patch_norm=True, out_indices=output_layers,
+                            use_checkpoint=False, **kwargs)
+
+    if pretrained:
+        weights_path = os.path.join(env_settings.Settings().env.pretrained_networks,
+                                    'swin_base_patch4_window12_384_22k.pth')
+        model.init_weights(weights_path)
+
+    return model
 
 configs = {
     'swin_t_p4w7': dict(embed_dim=96,
